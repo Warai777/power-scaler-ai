@@ -3,6 +3,7 @@ openai
 requests
 beautifulsoup4
 lxml
-pymongo
 schedule
 python-dotenv
+pymongo[srv]==4.6.1
+dnspython>=2.3.0
