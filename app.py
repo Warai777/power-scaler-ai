@@ -2,12 +2,12 @@ from flask import Flask, render_template, request, jsonify
 from feat_parser import parse_feat
 from battle_simulator import simulate_battle
 from character_db import get_character_profile, update_character_profile
-from openai import openAI
+from openai import OpenAI
 from config import OPENAI_API_KEY
 import os
 
 app = Flask(__name__)
-openai.api_key = OPENAI_API_KEY
+openai_api_key = OPENAI_API_KEY
 
 @app.route("/")
 def home():
@@ -37,19 +37,18 @@ def chat():
         profile = get_character_profile(char)
         return jsonify({"reply": profile})
 
-       else:
-           prompt = f"This user said: {msg}. Interpret this as a power-scaling request and respond intelligently."
-           client = OpenAI(api_key=OPENAI_API_KEY)
-           
-           response = client.chat.completions.create(
+    else:
+        prompt = f"This user said: {msg}. Interpret this as a power-scaling request and respond intelligently."
+        client = OpenAI(api_key=openai_api_key)
+
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.6
-           )
-           
-           reply = response.choices[0].message.content
-           return jsonify({"reply": reply})
+        )
 
+        reply = response.choices[0].message.content
+        return jsonify({"reply": reply})
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
