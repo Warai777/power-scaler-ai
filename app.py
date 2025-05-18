@@ -23,8 +23,7 @@ def chat():
 
     if "parse" in msg or "feat" in msg:
         feat = msg.replace("parse", "").replace("feat", "").strip()
-        prompt = f"""
-You are a power-scaling AI. Parse and extract the key stats from the following feat in a clean, readable format.
+       prompt = f"""You are a power-scaling AI. Parse and extract the key stats from the following feat in a clean, readable format.
 
 Instructions:
 - Use bullet points
@@ -34,6 +33,7 @@ Instructions:
 Feat:
 {feat}
 """
+
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}],
