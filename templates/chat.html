@@ -1,127 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Power Scaling AI</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-   <style>
+  <meta charset="UTF-8">
+  <title>Power Scaling AI</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
     body {
-        background-color: #111;
-        color: #e0e0e0;
-        font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
-        padding: 2rem;
-        line-height: 1.5;
+      background-color: #111;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
+      padding: 2rem;
+      line-height: 1.45;
     }
-
     .chat-box {
-        max-width: 900px;
-        margin: 0 auto;
+      max-width: 900px;
+      margin: 0 auto;
     }
-
     #reply-box {
-        background-color: #1a1a1a;
-        padding: 1.5rem;
-        border-radius: 12px;
-        font-size: 15px;
-        line-height: 1.5;
-        white-space: pre-wrap;
-        margin-bottom: 1.5rem;
+      background-color: #1a1a1a;
+      padding: 1.2rem 1.5rem;
+      border-radius: 10px;
+      font-size: 15px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      margin-bottom: 1.25rem;
     }
-
     #reply-box h1,
     #reply-box h2,
     #reply-box h3 {
-        margin-top: 1rem;
-        margin-bottom: 0.4rem;
-        font-weight: 600;
-        font-size: 1.1rem;
-        color: #fff;
-        border-bottom: 1px solid #333;
-        padding-bottom: 0.2rem;
+      margin: 0.8rem 0 0.2rem 0;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #ffffff;
+      padding-bottom: 2px;
+      border-bottom: 1px solid #2e2e2e;
     }
-
     #reply-box strong {
-        color: #fff;
-        font-weight: 600;
+      color: #ffc107;
+      font-weight: 600;
     }
-
     #reply-box ul {
-        margin: 0.3rem 0 0.8rem 1.2rem;
-        padding-left: 1rem;
+      margin: 0.2rem 0 0.6rem 1.1rem;
+      padding-left: 1rem;
     }
-
     #reply-box li {
-        margin-bottom: 0.2rem;
+      margin-bottom: 0.1rem;
     }
-
+    #reply-box .block-title {
+      background-color: #222;
+      padding: 0.4rem 0.75rem;
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+      border-left: 4px solid #007bff;
+      font-weight: bold;
+      color: #00b7ff;
+    }
     code,
     pre {
-        background-color: #222;
-        padding: 0.6rem;
-        border-radius: 6px;
-        display: block;
-        overflow-x: auto;
-        font-family: 'Courier New', monospace;
-        font-size: 14px;
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-        color: #d6d6d6;
+      background-color: #222;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      margin: 0.5rem 0;
+      overflow-x: auto;
+      color: #ddd;
     }
-
     input[type="text"] {
-        width: 80%;
-        padding: 0.6rem;
-        font-size: 15px;
-        background-color: #222;
-        border: 1px solid #444;
-        color: #e0e0e0;
+      width: 80%;
+      padding: 0.6rem;
+      font-size: 14px;
+      background-color: #222;
+      border: 1px solid #444;
+      color: #e0e0e0;
     }
-
     button {
-        padding: 0.6rem 1.2rem;
-        margin-left: 0.8rem;
-        font-size: 15px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        cursor: pointer;
+      padding: 0.6rem 1.1rem;
+      margin-left: 0.6rem;
+      font-size: 14px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
     }
-
     .user-input {
-        display: flex;
-        justify-content: center;
+      display: flex;
+      justify-content: center;
     }
-</style>
-
+  </style>
 </head>
 <body>
-    <div class="chat-box">
-        <h1>Power Scaling AI</h1>
-        <div id="reply-box">Ask about a character, feat, or battle to begin.</div>
-
-        <div class="user-input">
-            <input type="text" id="user-input" placeholder="Ask about any character, feat, or battle...">
-            <button onclick="sendMessage()">Send</button>
-        </div>
+  <div class="chat-box">
+    <h1>Power Scaling AI</h1>
+    <div id="reply-box">Ask about a character, feat, or battle to begin.</div>
+    <div class="user-input">
+      <input type="text" id="user-input" placeholder="Ask about any character, feat, or battle...">
+      <button onclick="sendMessage()">Send</button>
     </div>
-
-    <script>
-        async function sendMessage() {
-            const input = document.getElementById("user-input");
-            const message = input.value.trim();
-            if (!message) return;
-
-            const response = await fetch("/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message })
-            });
-
-            const data = await response.json();
-            document.getElementById("reply-box").innerHTML = marked.parse(data.reply);
-            input.value = "";
-        }
-    </script>
+  </div>
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("user-input");
+      const message = input.value.trim();
+      if (!message) return;
+      const response = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+      const data = await response.json();
+      let parsed = marked.parse(data.reply);
+      parsed = parsed.replace(/\*\*(.*?)\*\*/g, '<span class="block-title">$1</span>');
+      document.getElementById("reply-box").innerHTML = parsed;
+      input.value = "";
+    }
+  </script>
 </body>
 </html>
