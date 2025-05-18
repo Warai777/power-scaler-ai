@@ -1,3 +1,6 @@
 import os
+from dotenv import load_dotenv
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "your-key-here")
+load_dotenv()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+MONGO_URI = os.getenv("MONGO_URI")
