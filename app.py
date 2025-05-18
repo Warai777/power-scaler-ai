@@ -32,7 +32,7 @@ Instructions:
 - End with a short summary
 
 Feat:
-"""{feat}"""
+{feat}
 """
         response = client.chat.completions.create(
             model="gpt-4",
