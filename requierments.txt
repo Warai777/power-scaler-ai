@@ -1,0 +1,8 @@
+flask
+openai
+requests
+beautifulsoup4
+lxml
+pymongo
+schedule
+python-dotenv
