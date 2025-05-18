@@ -1,18 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Power Scaling AI</title>
-  <link rel="stylesheet" href="/static/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power Scaling AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #dcdcdc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+        .chat-box {
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 2rem;
+        }
+        .user-input {
+            display: flex;
+            margin-top: 1rem;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: 1px solid #444;
+            background-color: #2e2e2e;
+            color: white;
+        }
+        button {
+            padding: 0.75rem 1rem;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        #reply-box {
+            margin-top: 1rem;
+            background-color: #2a2a2a;
+            padding: 1rem;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+    </style>
 </head>
 <body>
-  <div id="chat-container">
-    <div id="chat-window"></div>
-    <form id="chat-form">
-      <input type="text" id="user-input" placeholder="Ask about any character, feat, or battle..." autocomplete="off" />
-      <button type="submit">Send</button>
-    </form>
-  </div>
-  <script src="/static/script.js"></script>
+    <h1>Power Scaling AI</h1>
+    <div class="chat-box">
+        <div id="reply-box"></div>
+        <div class="user-input">
+            <input type="text" id="user-input" placeholder="Ask about any character, feat, or battle...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById("user-input");
+            const message = input.value.trim();
+            if (!message) return;
+
+            const response = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message })
+            });
+
+            const data = await response.json();
+            document.getElementById("reply-box").innerHTML = marked.parse(data.reply);
+            input.value = "";
+        }
+    </script>
 </body>
 </html>
