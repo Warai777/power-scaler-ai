@@ -4,6 +4,7 @@ from battle_simulator import simulate_battle
 from character_db import get_character_profile, update_character_profile
 import openai
 from config import OPENAI_API_KEY
+import os
 
 app = Flask(__name__)
 openai.api_key = OPENAI_API_KEY
@@ -47,4 +48,5 @@ def chat():
         return jsonify({"reply": reply})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
