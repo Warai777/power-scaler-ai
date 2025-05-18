@@ -23,7 +23,7 @@ def chat():
 
     if "parse" in msg or "feat" in msg:
         feat = msg.replace("parse", "").replace("feat", "").strip()
-       prompt = f"""You are a power-scaling AI. Parse and extract the key stats from the following feat in a clean, readable format.
+        prompt = f"""You are a power-scaling AI. Parse and extract the key stats from the following feat in a clean, readable format.
 
 Instructions:
 - Use bullet points
@@ -33,7 +33,6 @@ Instructions:
 Feat:
 {feat}
 """
-
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}],
@@ -46,8 +45,7 @@ Feat:
         parts = msg.replace("who wins", "").split("vs")
         if len(parts) == 2:
             char1, char2 = parts[0].strip(), parts[1].strip()
-            prompt = f"""
-You are a battle simulation AI. Simulate a fight between {char1} and {char2} based on feats, logic, and power scaling.
+            prompt = f"""You are a battle simulation AI. Simulate a fight between {char1} and {char2} based on feats, logic, and power scaling.
 
 Instructions:
 - Use bolded headers (e.g., **Winner**, **Win Rate**, **Key Advantages**, **Battle Summary**)
@@ -71,16 +69,14 @@ Instructions:
 
     else:
         history = session.get("chat_history", [])
-        prompt = f"""
-You are a power-scaling AI assistant.
+        prompt = f"""You are a power-scaling AI assistant.
 
 Instructions:
 - Always format your replies clearly using bullet points or short sections
 - Bold key stats and terms (e.g., **Speed**, **Tier**, **Abilities**)
 - Answer concisely and intelligently based on previous context
 
-Conversation history:
-"""
+Conversation history:"""
         for turn in history[-5:]:
             prompt += f"\n{turn['role'].capitalize()}: {turn['content']}"
         prompt += f"\nUser: {msg}\nAssistant:"
