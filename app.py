@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
 from feat_parser import parse_feat
 from battle_simulator import simulate_battle
 from character_db import get_character_profile, update_character_profile
@@ -7,10 +7,13 @@ from config import OPENAI_API_KEY
 import os
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24)  # Needed for Flask session management
 openai_api_key = OPENAI_API_KEY
+client = OpenAI(api_key=openai_api_key)
 
 @app.route("/")
 def home():
+    session["chat_history"] = []  # Reset history on new visit
     return render_template("chat.html")
 
 @app.route("/chat", methods=["POST"])
@@ -38,16 +41,18 @@ def chat():
         return jsonify({"reply": profile})
 
     else:
-        prompt = f"This user said: {msg}. Interpret this as a power-scaling request and respond intelligently."
-        client = OpenAI(api_key=openai_api_key)
+        history = session.get("chat_history", [])
+        history.append({"role": "user", "content": msg})
 
         response = client.chat.completions.create(
             model="gpt-4",
-            messages=[{"role": "user", "content": prompt}],
+            messages=history[-10:],  # Send last 10 messages only
             temperature=0.6
         )
 
         reply = response.choices[0].message.content
+        history.append({"role": "assistant", "content": reply})
+        session["chat_history"] = history  # Save updated chat
         return jsonify({"reply": reply})
 
 if __name__ == "__main__":
