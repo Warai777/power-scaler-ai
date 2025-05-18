@@ -37,18 +37,18 @@ def chat():
         profile = get_character_profile(char)
         return jsonify({"reply": profile})
 
-   else:
-    prompt = f"This user said: {msg}. Interpret this as a power-scaling request and respond intelligently."
-    client = OpenAI(api_key=OPENAI_API_KEY)
+       else:
+        prompt = f"This user said: {msg}. Interpret this as a power-scaling request and respond intelligently."
+        client = OpenAI(api_key=OPENAI_API_KEY)
 
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.6
-    )
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.6
+        )
 
-    reply = response.choices[0].message.content
-    return jsonify({"reply": reply})
+        reply = response.choices[0].message.content
+        return jsonify({"reply": reply})
 
 
 if __name__ == "__main__":
