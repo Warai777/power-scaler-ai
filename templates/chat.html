@@ -2,57 +2,103 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Power Scaling AI</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <style>
         body {
-            background-color: #1e1e1e;
-            color: #dcdcdc;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background-color: #111;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
             padding: 2rem;
+            line-height: 1.7;
         }
+
         .chat-box {
-            width: 100%;
             max-width: 900px;
+            margin: 0 auto;
+        }
+
+        #reply-box {
+            background-color: #1a1a1a;
+            padding: 2rem;
+            border-radius: 12px;
+            font-size: 16px;
+            line-height: 1.7;
+            white-space: pre-wrap;
             margin-bottom: 2rem;
         }
-        .user-input {
-            display: flex;
-            margin-top: 1rem;
+
+        #reply-box h1,
+        #reply-box h2,
+        #reply-box h3 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #fff;
+            border-bottom: 1px solid #333;
+            padding-bottom: 0.2rem;
         }
-        input[type="text"] {
-            flex: 1;
+
+        #reply-box strong {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        #reply-box ul {
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+
+        #reply-box li {
+            margin-bottom: 0.4rem;
+        }
+
+        code,
+        pre {
+            background-color: #222;
             padding: 0.75rem;
-            font-size: 1rem;
-            border: 1px solid #444;
-            background-color: #2e2e2e;
-            color: white;
+            border-radius: 8px;
+            display: block;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            color: #d6d6d6;
         }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 0.75rem;
+            font-size: 16px;
+            background-color: #222;
+            border: 1px solid #444;
+            color: #e0e0e0;
+        }
+
         button {
-            padding: 0.75rem 1rem;
+            padding: 0.75rem 1.5rem;
+            margin-left: 1rem;
+            font-size: 16px;
             background-color: #007bff;
-            border: none;
             color: white;
+            border: none;
             cursor: pointer;
         }
-        #reply-box {
-            margin-top: 1rem;
-            background-color: #2a2a2a;
-            padding: 1rem;
-            border-radius: 8px;
-            white-space: pre-wrap;
-            line-height: 1.6;
+
+        .user-input {
+            display: flex;
+            justify-content: center;
         }
     </style>
 </head>
 <body>
-    <h1>Power Scaling AI</h1>
     <div class="chat-box">
-        <div id="reply-box"></div>
+        <h1>Power Scaling AI</h1>
+        <div id="reply-box">Ask about a character, feat, or battle to begin.</div>
+
         <div class="user-input">
             <input type="text" id="user-input" placeholder="Ask about any character, feat, or battle...">
             <button onclick="sendMessage()">Send</button>
