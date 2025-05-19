@@ -2,14 +2,17 @@ from gpt_feat_parser import parse_feats_with_gpt
 from chapter_parser.anime_parser import parse_anime_episode
 from chapter_parser.chapter_parser import parse_chapter
 from chapter_parser.chapter_tracker import get_last_parsed, update_last_parsed
+from chapter_parser.latest_fetcher import get_latest_chapter, get_latest_episode  # ✅ NEW
 from wiki_parsers.vs_battle_wiki_parser import fetch_vs_battle_profile
 from wiki_parsers.omniversalbattle_parser import fetch_omniversal_profile
 from wiki_parsers.top_strongest_parser import fetch_top_strongest_profile
 from wiki_parsers.character_stat_profiles_parser import fetch_character_stat_profile
 from wiki_parsers.vs_debating_parser import fetch_vs_debating_profile
 from wiki_parsers.superpower_wiki_parser import fetch_superpower_profile
+from name_resolver import resolve_character_name  # ✅ NEW
 
 def unified_scaling_data(name):
+    name = resolve_character_name(name)  # ✅ Normalize nickname
     print(f"[+] Gathering all sources for {name}...")
 
     # --- Wiki Profiles ---
@@ -28,14 +31,14 @@ def unified_scaling_data(name):
             for key, value in block.items():
                 wiki_stats[key.lower()] = value
 
-    # --- Load progress
+    # --- Load scan progress
     progress = get_last_parsed(name)
     last_chapter = progress.get("last_chapter", 1)
     last_episode = progress.get("last_episode", 1)
 
-    # 🔁 Simulate latest scan limit (replace with real detection later)
-    latest_chapter = 1500
-    latest_episode = 1100
+    # ✅ Get latest available chapter and episode dynamically
+    latest_chapter = get_latest_chapter(name)
+    latest_episode = get_latest_episode(name)
 
     print(f"[*] Scanning chapters {last_chapter + 1} to {latest_chapter}...")
     print(f"[*] Scanning episodes {last_episode + 1} to {latest_episode}...")
