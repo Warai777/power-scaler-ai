@@ -8,7 +8,7 @@ def fetch_vs_debating_profile(term_or_character):
         search_url = f"https://www.google.com/search?q={query}"
         headers = {"User-Agent": "Mozilla/5.0"}
         res = requests.get(search_url, headers=headers)
-        matches = re.findall(r"https://vsdebating\.fandom\.com/wiki/[^"]+", res.text)
+        matches = re.findall(r'https://vsdebating\.fandom\.com/wiki/[^"]+', res.text)
 
         if not matches:
             print("[VSDebating] No page found.")
