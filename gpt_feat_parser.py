@@ -6,64 +6,63 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 def parse_feats_with_gpt(raw_text, series_name=None, chapter_number=None, source="Unknown", wiki_stats=None):
     """
-    Parses feats from a given text using GPT, tagging them with the source and comparing against wiki data.
+    Parses feats from a given text using GPT, comparing against wiki stats if available.
 
     Parameters:
-    - raw_text (str): The raw string containing feats to parse
-    - series_name (str): Optional label for the anime/manga/game series
-    - chapter_number (str): Optional chapter or episode reference
-    - source (str): Source label (e.g., 'Viz', 'MangaDex', 'Anime', 'YouTube')
-    - wiki_stats (dict): Parsed wiki stats to compare against (e.g., tier, durability, attack potency)
+    - raw_text (str): Combined raw feat text from chapters, anime, Reddit, etc.
+    - series_name (str): Optional series label
+    - chapter_number (int): Optional chapter or episode number
+    - source (str): Where this came from (e.g. "Auto Power Profile", "Unified Scaling")
+    - wiki_stats (dict): Optional dictionary of stats pulled from wikis
 
     Returns:
-    - str: Formatted markdown response with parsed feats in VS Battle Wiki format
+    - str: Markdown-formatted VS Battle Wiki power profile
     """
 
     wiki_context = ""
     if wiki_stats:
-        wiki_context += "Use the following wiki stats as historical reference. If feats show a higher tier, override them:\n"
+        wiki_context += "Use the following wiki stats as reference, but override them if the feats below suggest a higher tier:\n"
         for key, value in wiki_stats.items():
             wiki_context += f"- {key.title()}: {value}\n"
 
     prompt = f"""
-You are a power-scaling analyst AI trained in the Versus Battle Wiki format.
+You are a power-scaling analyst AI trained to use the Versus Battle Wiki tiering system.
 
-Given the following raw feat descriptions from the manga, anime, and community summaries, extract the character's power stats using VS Battle Wiki's tiering system (e.g., 7-A, 5-C, etc.). Prioritize new feats if they show higher scaling than existing wiki entries.
+Using the feats and stats below, generate a full character profile in markdown.
 
-If the feat shows a stronger tier than the wiki entry, override it and note the discrepancy.
+If new feats show stronger scaling than existing wiki tiers, override the wiki tier and explain why.
 
-Respond in this exact markdown format:
+Respond in this format:
 
-**Name:** [Character]  
+**Name:** [Character Name]  
 **Verse:** [Series]  
-**Tier:** [Final Tier]  
-**Attack Potency:** [Summary]  
-**Speed:** [Summary]  
-**Lifting Strength:** [Summary]  
-**Striking Strength:** [Summary]  
-**Durability:** [Summary]  
-**Stamina:** [Summary]  
-**Range:** [Summary]  
-**Standard Equipment:** [Summary]  
-**Intelligence:** [Summary]  
-**Notable Abilities:** [List of Abilities]  
+**Tier:** [Tier]  
+**Attack Potency:**  
+**Speed:**  
+**Durability:**  
+**Striking Strength:**  
+**Lifting Strength:**  
+**Stamina:**  
+**Range:**  
+**Standard Equipment:**  
+**Intelligence:**  
+**Notable Abilities:**  
 **Feats:**  
-- [Short bullet list of actual feat summaries with source]
-
+- Bullet summary of key feats
 **Wiki Discrepancy:**  
-- If any wiki tier was overridden, explain it here.
+- If you overrode any outdated wiki tiers, explain why
 
 {wiki_context}
 
---- BEGIN FEATS ---
+--- FEAT DATA BEGIN ---
 {raw_text}
---- END FEATS ---
+--- FEAT DATA END ---
 """
 
     response = client.chat.completions.create(
         model="gpt-4",
         messages=[
-            {"role": "system", "content": "You are a power-scaling AI trained in VS Battle Wiki standards."},
+            {"role": "system", "content": "You are a power-scaling AI following the Versus Battle Wiki format."},
             {"role": "user", "content": prompt}
         ],
         temperature=0.3,
