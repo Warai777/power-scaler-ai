@@ -3,6 +3,8 @@ from kitsunekko_scraper import fetch_kitsunekko_subtitles
 from youtube_transcript import fetch_youtube_summary
 from gpt_feat_parser import parse_feats_with_gpt
 from logger import log_source_used
+from cache import load_cache, save_cache
+
 
 def fetch_subtitle_text(anime_title, episode_number):
     # 1. Try Kitsunekko subtitles
@@ -21,15 +23,24 @@ def fetch_subtitle_text(anime_title, episode_number):
 
 
 def parse_anime_episode(anime_title, episode_number):
+    key = f"anime_{anime_title}_{episode_number}"
+    cached = load_cache(key)
+    if cached:
+        print("[✓] Loaded cached result")
+        return cached
+
     print(f"[+] Starting anime feat parser for {anime_title} Episode {episode_number}...")
     raw_text = fetch_subtitle_text(anime_title, episode_number)
 
     if not raw_text:
         return "❌ No subtitles or summaries found for this episode."
 
-    return parse_feats_with_gpt(
+    result = parse_feats_with_gpt(
         raw_text,
         anime_title,
         episode_number,
         source="Anime (Subs/YouTube)"
     )
+    save_cache(key, result)
+    return result
+
