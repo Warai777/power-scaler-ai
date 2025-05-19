@@ -6,7 +6,7 @@ from wiki_parsers.omniversalbattle_parser import fetch_omniversal_profile
 from wiki_parsers.top_strongest_parser import fetch_top_strongest_profile
 from wiki_parsers.character_stat_profiles_parser import fetch_character_stat_profile
 from wiki_parsers.vs_debating_parser import fetch_vs_debating_profile
-from wiki_parsers.superpower_profile_parser import fetch_superpower_profile  # adjust if typo
+from wiki_parsers.superpower_wiki_parser import fetch_superpower_wiki  # adjust if typo
 
 def unified_scaling_data(name, episode=None, chapter=None):
     print(f"[+] Gathering all sources for {name}...")
