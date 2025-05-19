@@ -4,6 +4,7 @@ from gpt_feat_parser import parse_feats_with_gpt
 from cache import load_cache, save_cache
 from unified_scaling_fetcher import unified_scaling_data
 import os
+import re
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -63,6 +64,27 @@ Feat:
             return jsonify({"reply": result})
         except Exception:
             return jsonify({"reply": "Please use format: 'Character A vs Character B'"})
+
+    # Power-scaling type questions (e.g. how strong is ichigo)
+    power_q = re.match(r"how (strong|fast|powerful|durable|haxxed|broken|skilled).*?([a-zA-Z_ ]+)", msg_lower)
+    if power_q:
+        name = power_q.group(2).strip().title()
+        try:
+            data = unified_scaling_data(name)
+            reply = parse_feats_with_gpt(data, f"{name} Stats", 0, source="Power Q")
+            return jsonify({"reply": reply})
+        except Exception as e:
+            return jsonify({"reply": f"❌ Could not retrieve profile for {name}: {e}"})
+
+    # Wiki/stat shortcut (e.g. "goku wiki", "luffy stats")
+    if any(k in msg_lower for k in [" wiki", " stats"]):
+        try:
+            name = msg.split()[0].strip().title()
+            data = unified_scaling_data(name)
+            reply = parse_feats_with_gpt(data, f"{name} Wiki Shortcut", 0, source="Shortcut")
+            return jsonify({"reply": reply})
+        except Exception as e:
+            return jsonify({"reply": f"❌ Could not fetch wiki/stat profile: {e}"})
 
     # GPT general Q&A (with short memory)
     else:
