@@ -1,5 +1,5 @@
 import os
-from kitsunekko_scraper import fetch_kitsunekko_subtitles
+from chapter_parser.kitsunekko_scraper import fetch_kitsunekko_subtitles
 from youtube_transcript import fetch_youtube_summary
 from gpt_feat_parser import parse_feats_with_gpt
 from logger import log_source_used
