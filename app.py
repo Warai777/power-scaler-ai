@@ -38,6 +38,7 @@ def chat():
         except Exception as e:
             return jsonify({"reply": f"❌ Could not parse full profile request: {e}"})
 
+
     # Feat parsing
     if "parse:" in msg_lower:
         feat = msg.split("parse:")[1].strip()
@@ -56,6 +57,7 @@ Feat:
         save_cache(key, result)
         return jsonify({"reply": result})
 
+
     # Battle simulation
     elif " vs " in msg_lower:
         try:
@@ -65,27 +67,29 @@ Feat:
         except Exception:
             return jsonify({"reply": "Please use format: 'Character A vs Character B'"})
 
+
     # Power-scaling type questions (e.g. how strong is Ichigo)
-power_q = re.match(r"how (strong|fast|powerful|durable|haxxed|broken|skilled).*?([a-zA-Z_ ]+)", msg_lower)
-if power_q:
-    name = power_q.group(2).strip().title()
-    try:
-        # Pull updated feats + wiki
-        data = unified_scaling_data(name)
+    power_q = re.match(r"how (strong|fast|powerful|durable|haxxed|broken|skilled).*?([a-zA-Z_ ]+)", msg_lower)
+    if power_q:
+        name = power_q.group(2).strip().title()
+        try:
+            # Pull updated feats + wiki
+            data = unified_scaling_data(name)
 
-        # Let GPT format in VS Battle Wiki markdown (with tier overrides)
-        reply = parse_feats_with_gpt(
-            raw_text=data,
-            series_name=name,
-            chapter_number=0,
-            source="Auto Power Profile",
-            wiki_stats={}  # optionally pass wiki stats here if not embedded
-        )
+            # Let GPT format in VS Battle Wiki markdown (with tier overrides)
+            reply = parse_feats_with_gpt(
+                raw_text=data,
+                series_name=name,
+                chapter_number=0,
+                source="Auto Power Profile",
+                wiki_stats={}  # optionally pass wiki stats here if not embedded
+            )
 
-        return jsonify({"reply": reply})
-        
-    except Exception as e:
-        return jsonify({"reply": f"❌ Could not retrieve profile for {name}: {e}"})
+            return jsonify({"reply": reply})
+
+        except Exception as e:
+            return jsonify({"reply": f"❌ Could not retrieve profile for {name}: {e}"})
+
 
     # Wiki/stat shortcut (e.g. "goku wiki", "luffy stats")
     if any(k in msg_lower for k in [" wiki", " stats"]):
@@ -96,6 +100,7 @@ if power_q:
             return jsonify({"reply": reply})
         except Exception as e:
             return jsonify({"reply": f"❌ Could not fetch wiki/stat profile: {e}"})
+
 
     # GPT general Q&A (with short memory)
     else:
