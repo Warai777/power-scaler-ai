@@ -8,7 +8,7 @@ def fetch_character_stat_profile(character_name):
         search_url = f"https://www.google.com/search?q={query}"
         headers = {"User-Agent": "Mozilla/5.0"}
         res = requests.get(search_url, headers=headers)
-        matches = re.findall(r"https://character-stat-profiles\.fandom\.com/wiki/[^"]+", res.text)
+        matches = re.findall(r'https://character-stat-profiles\.fandom\.com/wiki/[^"]+', res.text)
 
         if not matches:
             print("[CharStatProfiles] No result.")
