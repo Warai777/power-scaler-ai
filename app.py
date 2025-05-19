@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, session
 from battle_engine import simulate_battle
 from gpt_feat_parser import parse_feats_with_gpt
 from cache import load_cache, save_cache
+from unified_scaling_fetcher import unified_scaling_data
 import os
 
 app = Flask(__name__)
@@ -21,6 +22,20 @@ def chat():
         return jsonify({"reply": "Please enter a message."})
 
     msg_lower = msg.lower()
+
+    # Unified scaling fetcher (e.g. "Ichigo full 58 479")
+    if " full" in msg_lower:
+        try:
+            parts = msg.split()
+            name = parts[0]
+            ep = int(parts[2]) if len(parts) > 2 else None
+            ch = int(parts[3]) if len(parts) > 3 else None
+
+            combined = unified_scaling_data(name, episode=ep, chapter=ch)
+            reply = parse_feats_with_gpt(combined, f"{name} Composite", 0, source="Unified Scaling")
+            return jsonify({"reply": reply})
+        except Exception as e:
+            return jsonify({"reply": f"❌ Could not parse full profile request: {e}"})
 
     # Feat parsing
     if "parse:" in msg_lower:
