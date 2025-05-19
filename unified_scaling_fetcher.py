@@ -2,7 +2,7 @@ from gpt_feat_parser import parse_feats_with_gpt
 from chapter_parser.anime_parser import parse_anime_episode
 from chapter_parser.chapter_parser import parse_chapter
 from chapter_parser.chapter_tracker import get_last_parsed, update_last_parsed
-from chapter_parser.latest_fetcher import get_latest_chapter, get_latest_episode  # ✅ NEW
+from latest_fetcher import get_latest_chapter, get_latest_episode  # ✅ NEW
 from wiki_parsers.vs_battle_wiki_parser import fetch_vs_battle_profile
 from wiki_parsers.omniversalbattle_parser import fetch_omniversal_profile
 from wiki_parsers.top_strongest_parser import fetch_top_strongest_profile
