@@ -11,7 +11,9 @@ def parse_chapter(series_name, chapter_number):
     # 1. Try Viz
     viz_text = fetch_viz_chapter(series_name, chapter_number)
     if viz_text:
-        print("[✓] Parsed chapter from Viz")
+        from logger import log_source_used
+log_source_used(series_name, chapter_number, "Viz")
+
         return parse_feats_with_gpt(viz_text, series_name, chapter_number, source="Viz")
 
     # 2. Try MangaDex
