@@ -2,7 +2,7 @@ from chapter_parser.viz_scraper import fetch_viz_chapter
 from chapter_parser.mangadex_scraper import fetch_mangadex_chapter
 from chapter_parser.youtube_transcript import fetch_youtube_summary
 from chapter_parser.reddit_fetcher import fetch_reddit_summary
-from chapter_parser.gpt_feat_parser import parse_feats_with_gpt
+from gpt_feat_parser import parse_feats_with_gpt
 from logger import log_source_used
 from cache import load_cache, save_cache
 
