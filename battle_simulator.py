@@ -1,23 +1,21 @@
-from openai import OpenAI
-from config import OPENAI_API_KEY
-
-client = OpenAI(api_key=OPENAI_API_KEY)
+import re
+from battle_engine import simulate_fight
 
 def simulate_battle(char1, char2):
-    prompt = f"""Simulate a battle between {char1} and {char2}.
-Base it on logic, powerscaling, win conditions, hax, and speed.
-Give a win rate and reasoning. Be accurate.
+    try:
+        prompt = f"""
+You are a battle simulation AI.
+Simulate a fight between **{char1}** and **{char2}** using feats, logic, stats, and real matchups from manga/anime/game sources.
 
-Output format:
-- Winner:
-- Win Rate:
-- Key Advantages:
-- Battle Summary:"""
-
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.4
-    )
-
-    return {"result": response.choices[0].message.content}
+Respond in this markdown format:
+- **Winner**: 
+- **Speed**: 
+- **Strength**: 
+- **Durability**: 
+- **Key Abilities**: 
+- **Battle Summary**: Short summary with tactics or strategies.
+"""
+        return simulate_fight(prompt)
+    except Exception as e:
+        print(f"[Battle Error] {e}")
+        return {"result": "Battle simulation failed."}
