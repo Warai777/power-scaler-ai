@@ -1,17 +1,18 @@
 from gpt_feat_parser import parse_feats_with_gpt
 from chapter_parser.anime_parser import parse_anime_episode
 from chapter_parser.chapter_parser import parse_chapter
+from chapter_parser.chapter_tracker import get_last_parsed, update_last_parsed
 from wiki_parsers.vs_battle_wiki_parser import fetch_vs_battle_profile
 from wiki_parsers.omniversalbattle_parser import fetch_omniversal_profile
 from wiki_parsers.top_strongest_parser import fetch_top_strongest_profile
 from wiki_parsers.character_stat_profiles_parser import fetch_character_stat_profile
 from wiki_parsers.vs_debating_parser import fetch_vs_debating_profile
-from wiki_parsers.superpower_wiki_parser import fetch_superpower_profile  # adjust if typo
+from wiki_parsers.superpower_wiki_parser import fetch_superpower_profile
 
-def unified_scaling_data(name, episode=None, chapter=None):
+def unified_scaling_data(name):
     print(f"[+] Gathering all sources for {name}...")
 
-    # --- Fetch wiki profiles ---
+    # --- Wiki Profiles ---
     wiki_raw = {
         "vs_battle": fetch_vs_battle_profile(name),
         "omniversal": fetch_omniversal_profile(name),
@@ -21,29 +22,49 @@ def unified_scaling_data(name, episode=None, chapter=None):
         "superpower": fetch_superpower_profile(name)
     }
 
-    # --- Combine wiki stats into a simplified dict for GPT ---
     wiki_stats = {}
     for source, block in wiki_raw.items():
         if isinstance(block, dict):
             for key, value in block.items():
                 wiki_stats[key.lower()] = value
 
-    # --- Gather feat data from all chapter/anime sources ---
-    print("[*] Collecting manga/anime feats...")
+    # --- Load progress
+    progress = get_last_parsed(name)
+    last_chapter = progress.get("last_chapter", 1)
+    last_episode = progress.get("last_episode", 1)
+
+    # 🔁 Simulate latest scan limit (replace with real detection later)
+    latest_chapter = 1500
+    latest_episode = 1100
+
+    print(f"[*] Scanning chapters {last_chapter + 1} to {latest_chapter}...")
+    print(f"[*] Scanning episodes {last_episode + 1} to {latest_episode}...")
 
     feat_sources = []
 
-    if chapter:
-        chapter_result = parse_chapter(name, chapter)
-        if chapter_result:
-            feat_sources.append(f"[Chapter {chapter}] {chapter_result}")
+    # Chapters
+    for ch in range(last_chapter + 1, latest_chapter + 1):
+        try:
+            ch_result = parse_chapter(name, ch)
+            if ch_result:
+                print(f"[✓] Chapter {ch}")
+                feat_sources.append(f"[Chapter {ch}] {ch_result}")
+                update_last_parsed(name, chapter=ch)
+        except Exception as e:
+            print(f"[✗] Chapter {ch} skipped: {e}")
 
-    if episode:
-        anime_result = parse_anime_episode(name, episode)
-        if anime_result:
-            feat_sources.append(f"[Episode {episode}] {anime_result}")
+    # Episodes
+    for ep in range(last_episode + 1, latest_episode + 1):
+        try:
+            ep_result = parse_anime_episode(name, ep)
+            if ep_result:
+                print(f"[✓] Episode {ep}")
+                feat_sources.append(f"[Episode {ep}] {ep_result}")
+                update_last_parsed(name, episode=ep)
+        except Exception as e:
+            print(f"[✗] Episode {ep} skipped: {e}")
 
-    # Optional YouTube/Reddit support
+    # Optional sources
     try:
         from chapter_parser.reddit_fetcher import fetch_reddit_thread
         reddit_result = fetch_reddit_thread(name)
@@ -61,13 +82,15 @@ def unified_scaling_data(name, episode=None, chapter=None):
         pass
 
     raw_text = "\n\n".join(feat_sources)
+    if not raw_text.strip():
+        return f"⚠️ No new feats found for {name}."
 
-    print("[*] Sending combined feats + wiki data to GPT for scaling...")
+    print("[*] Sending new data to GPT...")
     result = parse_feats_with_gpt(
         raw_text=raw_text,
         series_name=name,
-        chapter_number=chapter or episode,
-        source="Unified",
+        chapter_number=0,
+        source="Smart Incremental Scaling",
         wiki_stats=wiki_stats
     )
 
