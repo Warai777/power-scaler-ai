@@ -8,7 +8,7 @@ def fetch_omniversal_profile(character_name):
         search_url = f"https://www.google.com/search?q={query}"
         headers = {"User-Agent": "Mozilla/5.0"}
         resp = requests.get(search_url, headers=headers)
-        matches = re.findall(r"https://omniversal-battlefield\.fandom\.com/wiki/[^"]+", resp.text)
+        matches = re.findall(r'https://omniversal-battlefield\.fandom\.com/wiki/[^"]+', resp.text)
 
         if not matches:
             print("[Omniversal] No page found.")
