@@ -83,6 +83,7 @@ if power_q:
         )
 
         return jsonify({"reply": reply})
+        
     except Exception as e:
         return jsonify({"reply": f"❌ Could not retrieve profile for {name}: {e}"})
 
