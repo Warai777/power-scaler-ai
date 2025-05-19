@@ -8,7 +8,7 @@ def fetch_top_strongest_profile(character_name):
         search_url = f"https://www.google.com/search?q={query}"
         headers = {"User-Agent": "Mozilla/5.0"}
         resp = requests.get(search_url, headers=headers)
-       matches = re.findall(r'https://top-strongest\.fandom\.com/wiki/[^"]+', resp.text)
+        matches = re.findall(r'https://top-strongest\.fandom\.com/wiki/[^"]+', resp.text)
 
         if not matches:
             print("[TopStrongest] No profile found.")
