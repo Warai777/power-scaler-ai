@@ -10,7 +10,7 @@ def fetch_vs_battle_profile(character_name):
         res = requests.get(search_url, headers=headers)
 
         # Find the first valid VSBattles link
-        matches = re.findall(r"https://vsbattles\.fandom\.com/wiki/[^"]+", res.text)
+        matches = re.findall(r'https://vsbattles\.fandom\.com/wiki/[^"]+', res.text)
         if not matches:
             print("[VSBattles] No profile found.")
             return None
