@@ -1,12 +1,19 @@
 import requests
 import re
+from cache_latest import get_cached_latest, set_cached_latest  # ✅ NEW
 
 def get_latest_chapter(series_name):
     """
-    Gets the latest English chapter of a manga using:
-    1. MangaDex API
-    2. Viz.com scraping (fallback)
+    Gets the latest chapter using:
+    1. Cache (if valid)
+    2. MangaDex API
+    3. Viz.com fallback
     """
+    cached = get_cached_latest(series_name, "chapter")
+    if cached:
+        return cached
+
+    # 1. MangaDex API
     try:
         search_res = requests.get(
             "https://api.mangadex.org/manga",
@@ -28,17 +35,23 @@ def get_latest_chapter(series_name):
 
             latest = chapter_res["data"][0]["attributes"]["chapter"]
             if latest and latest.replace(".", "").isdigit():
-                return int(float(latest))
+                final = int(float(latest))
+                set_cached_latest(series_name, "chapter", final)
+                return final
     except Exception as e:
         print(f"[MangaDex] Failed for {series_name}: {e}")
 
+    # 2. Viz fallback
     try:
         slug = series_name.lower().replace(" ", "-")
         viz_url = f"https://www.viz.com/shonenjump/chapters/{slug}"
         html = requests.get(viz_url, timeout=5).text
-        chapters = re.findall(r'Chapter\\s(\\d+)', html)
+        chapters = re.findall(r'Chapter\s(\d+)', html)
         chapter_numbers = [int(c) for c in chapters if c.isdigit()]
-        return max(chapter_numbers) if chapter_numbers else 100
+        if chapter_numbers:
+            final = max(chapter_numbers)
+            set_cached_latest(series_name, "chapter", final)
+            return final
     except Exception as e:
         print(f"[Viz] Failed for {series_name}: {e}")
 
@@ -47,11 +60,16 @@ def get_latest_chapter(series_name):
 
 def get_latest_episode(series_name):
     """
-    Gets the latest number of anime episodes using:
-    1. AniList GraphQL API
-    2. Kitsunekko subtitle count (fallback)
+    Gets the latest anime episode using:
+    1. Cache (if valid)
+    2. AniList GraphQL API
+    3. Kitsunekko fallback
     """
-    # Try AniList
+    cached = get_cached_latest(series_name, "episode")
+    if cached:
+        return cached
+
+    # 1. AniList API
     try:
         query = '''
         query ($search: String) {
@@ -69,17 +87,21 @@ def get_latest_episode(series_name):
         result = response.json()
         episodes = result["data"]["Media"]["episodes"]
         if episodes and isinstance(episodes, int):
+            set_cached_latest(series_name, "episode", episodes)
             return episodes
     except Exception as e:
         print(f"[AniList] Failed for {series_name}: {e}")
 
-    # Fallback: Kitsunekko subtitle listing
+    # 2. Kitsunekko fallback
     try:
         kitsu_slug = series_name.title().replace(" ", "%20")
         kitsu_url = f"https://kitsunekko.net/dirlist.php?dir=subtitles/English/{kitsu_slug}/"
         html = requests.get(kitsu_url, timeout=5).text
         matches = re.findall(r'href=".*?\.(ass|srt)"', html, flags=re.IGNORECASE)
-        return len(matches) if matches else 100
+        if matches:
+            final = len(matches)
+            set_cached_latest(series_name, "episode", final)
+            return final
     except Exception as e:
         print(f"[Kitsunekko] Failed for {series_name}: {e}")
 
