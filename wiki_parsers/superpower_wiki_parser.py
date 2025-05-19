@@ -8,7 +8,7 @@ def fetch_superpower_profile(power_term):
         search_url = f"https://www.google.com/search?q={query}"
         headers = {"User-Agent": "Mozilla/5.0"}
         res = requests.get(search_url, headers=headers)
-        matches = re.findall(r"https://powerlisting\.fandom\.com/wiki/[^"]+", res.text)
+        matches = re.findall(r'https://powerlisting\.fandom\.com/wiki/[^"]+', res.text)
 
         if not matches:
             print("[Superpower Wiki] No match found.")
