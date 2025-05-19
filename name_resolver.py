@@ -21,7 +21,7 @@ def resolve_character_name(nickname):
     """
     Resolves a character nickname to their series name.
     1. Check name_map.json first
-    2. If missing, ask GPT and save to cache
+    2. If missing, ask GPT and save to cache with logging
     """
     key = nickname.strip().lower()
     mapping = _load_map()
@@ -51,6 +51,7 @@ def resolve_character_name(nickname):
         series = response.choices[0].message.content.strip().title()
         mapping[key] = series
         _save_map(mapping)
+        print(f"[Resolver] Learned: '{nickname}' → '{series}'")
         return series
     except Exception as e:
         print(f"[Name Resolver Error] {e}")
