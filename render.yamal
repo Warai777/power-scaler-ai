@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: powerscale-ai
+    env: python
+    buildCommand: bash build.sh
+    startCommand: python app.py
