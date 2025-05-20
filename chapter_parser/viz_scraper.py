@@ -1,4 +1,5 @@
 import os
+from chapter_parser.viz_image_fetcher import download_viz_images 
 from ocr_on_demand_parser import extract_text_from_images_temp
 
 # Simulated function that downloads Viz manga chapter images into a temp folder
