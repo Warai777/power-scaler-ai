@@ -1,9 +1,15 @@
 import os
 from openai import OpenAI
 from config import OPENAI_API_KEY
-from smart_chunker import chunk_text  # ✅ NEW
+from smart_chunker import chunk_text
+from profile_merger import merge_power_profiles
+from cache import load_cache, save_cache
 
 client = OpenAI(api_key=OPENAI_API_KEY)
+
+def get_cache_key(series, chunk_index):
+    slug = series.lower().replace(" ", "_")
+    return f"{slug}_chunk_{chunk_index:03}"
 
 def parse_feats_with_gpt(raw_text, series_name=None, chapter_number=None, source="Unknown", wiki_stats=None):
     """
@@ -30,6 +36,12 @@ def parse_feats_with_gpt(raw_text, series_name=None, chapter_number=None, source
     outputs = []
 
     for idx, chunk in enumerate(all_chunks):
+        cache_key = get_cache_key(series_name or "unknown", idx)
+        cached = load_cache(cache_key)
+        if cached:
+            outputs.append(cached)
+            continue
+
         prompt = f"""
 You are a power-scaling analyst AI trained to use the Versus Battle Wiki tiering system.
 
@@ -73,6 +85,8 @@ Respond in this format:
             max_tokens=1500
         )
 
-        outputs.append(response.choices[0].message.content.strip())
+        result = response.choices[0].message.content.strip()
+        save_cache(cache_key, result)
+        outputs.append(result)
 
-    return "\n\n---\n\n".join(outputs)
+    return merge_power_profiles(outputs)
