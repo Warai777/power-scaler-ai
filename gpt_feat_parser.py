@@ -4,6 +4,12 @@ from config import OPENAI_API_KEY
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
+def truncate_tokens(text, max_tokens=7500):
+    # ~4 characters per token, so 7500 tokens ≈ 30,000 characters
+    max_chars = max_tokens * 4
+    return text[:max_chars]
+
+
 def parse_feats_with_gpt(raw_text, series_name=None, chapter_number=None, source="Unknown", wiki_stats=None):
     """
     Parses feats from a given text using GPT, comparing against wiki stats if available.
@@ -24,6 +30,8 @@ def parse_feats_with_gpt(raw_text, series_name=None, chapter_number=None, source
         wiki_context += "Use the following wiki stats as reference, but override them if the feats below suggest a higher tier:\n"
         for key, value in wiki_stats.items():
             wiki_context += f"- {key.title()}: {value}\n"
+
+    raw_text = truncate_tokens(raw_text, max_tokens=7500)
 
     prompt = f"""
 You are a power-scaling analyst AI trained to use the Versus Battle Wiki tiering system.
