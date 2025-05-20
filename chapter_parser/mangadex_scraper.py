@@ -1,67 +1,29 @@
-import os
-import requests
-from PIL import Image
-from io import BytesIO
+from chapter_parser.mangadex_image_fetcher import download_mangadex_images
+from ocr_on_demand_parser import extract_text_from_images_temp
 
-API_URL = "https://api.mangadex.org"
+def fetch_mangadex_chapter(series_name, chapter_number):
+    """
+    Downloads manga pages from MangaDex and extracts feats using OCR.
 
-def clean_name(name):
-    return name.lower().replace(" ", "-").replace(".", "").replace(":", "")
+    Parameters:
+    - series_name (str): The title of the manga
+    - chapter_number (int): The chapter number to fetch
 
-def download_mangadex_images(series_name, chapter_number):
+    Returns:
+    - str: OCR-extracted text of feats, or None if failed
+    """
     try:
-        safe_name = clean_name(series_name)
-        target_folder = f"ocr/mangadex/{safe_name}/chapter_{chapter_number}"
-        os.makedirs(target_folder, exist_ok=True)
-
-        # Skip download if already exists
-        if os.listdir(target_folder):
-            print(f"[🔁] Skipping download: Already exists → {target_folder}")
-            return [os.path.join(target_folder, f) for f in sorted(os.listdir(target_folder))]
-
-        # Step 1: Search manga
-        res = requests.get(f"{API_URL}/manga", params={"title": series_name, "limit": 1})
-        res.raise_for_status()
-        manga_id = res.json()["data"][0]["id"]
-
-        # Step 2: Find chapter
-        res = requests.get(f"{API_URL}/chapter", params={
-            "manga": manga_id,
-            "chapter": str(chapter_number),
-            "translatedLanguage[]": "en",
-            "limit": 1
-        })
-        res.raise_for_status()
-        chapters = res.json()["data"]
-        if not chapters:
-            print(f"[❌] Chapter {chapter_number} not found on MangaDex")
+        # Download chapter images
+        image_paths = download_mangadex_images(series_name, chapter_number)
+        if not image_paths:
+            print(f"[❌] No images found for chapter {chapter_number}")
             return None
 
-        chapter_id = chapters[0]["id"]
-
-        # Step 3: Get image data
-        res = requests.get(f"{API_URL}/at-home/server/{chapter_id}")
-        res.raise_for_status()
-        data = res.json()
-        base_url = data["baseUrl"]
-        hash_val = data["chapter"]["hash"]
-        images = data["chapter"]["data"]
-
-        # Step 4: Download images
-        saved_files = []
-        for idx, file_name in enumerate(images):
-            img_url = f"{base_url}/data/{hash_val}/{file_name}"
-            img_res = requests.get(img_url)
-            img_res.raise_for_status()
-
-            image = Image.open(BytesIO(img_res.content)).convert("RGB")
-            save_path = os.path.join(target_folder, f"{idx + 1:03d}.jpg")
-            image.save(save_path)
-            saved_files.append(save_path)
-
-        print(f"[✅] Downloaded {len(saved_files)} pages to {target_folder}")
-        return saved_files
+        print(f"[🧠] Extracting OCR text from {len(image_paths)} MangaDex pages...")
+        
+        # Perform OCR on downloaded images
+        return extract_text_from_images_temp(image_paths)
 
     except Exception as e:
-        print(f"[❌] MangaDex Download Error: {e}")
+        print(f"[MangaDex Fetch Error] {e}")
         return None
