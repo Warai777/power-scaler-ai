@@ -1,47 +1,36 @@
-from playwright.sync_api import sync_playwright
-import time
+import os
+from ocr_on_demand_parser import extract_text_from_images_temp
+
+# Simulated function that downloads Viz manga chapter images into a temp folder
+def download_viz_images(series_name, chapter_number):
+    """
+    Stub function to simulate Viz image fetching.
+    In production, replace this with real scraping or automation (e.g. Playwright headless browser).
+    """
+    folder = f"ocr/viz/{series_name.lower().replace(' ', '_')}/chapter_{chapter_number}"
+    if not os.path.exists(folder):
+        print(f"[Viz] ❌ No local Viz images found: {folder}")
+        return None
+
+    image_files = [
+        os.path.join(folder, f) for f in sorted(os.listdir(folder))
+        if f.lower().endswith((".jpg", ".png", ".jpeg"))
+    ]
+
+    if not image_files:
+        print(f"[Viz] ❌ No image files found in {folder}")
+        return None
+
+    print(f"[Viz] ✅ Found {len(image_files)} page(s) for OCR in: {folder}")
+    return image_files
+
 
 def fetch_viz_chapter(series_name, chapter_number):
     try:
-        url = f"https://www.viz.com/shonenjump/chapters/{series_name.replace(' ', '-').lower()}"
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            context = browser.new_context()
-            page = context.new_page()
-            page.goto(url)
-            page.wait_for_timeout(3000)
-
-            # Find chapter link (match chapter number text in links)
-            links = page.locator("a")
-            count = links.count()
-            chapter_link = None
-            for i in range(count):
-                href = links.nth(i).get_attribute("href")
-                text = links.nth(i).inner_text().lower()
-                if f"chapter {chapter_number}" in text:
-                    chapter_link = href
-                    break
-
-            if not chapter_link:
-                print("[Viz] Chapter link not found.")
-                return None
-
-            # Go to chapter reader page
-            full_url = f"https://www.viz.com{chapter_link}"
-            page.goto(full_url)
-            page.wait_for_timeout(5000)
-
-            # Try to extract text from visible text boxes
-            text_blocks = page.locator(".text-layer div")
-            text = []
-            for i in range(text_blocks.count()):
-                content = text_blocks.nth(i).inner_text().strip()
-                if content:
-                    text.append(content)
-
-            browser.close()
-            return "\n".join(text) if text else None
-
+        images = download_viz_images(series_name, chapter_number)
+        if not images:
+            return None
+        return extract_text_from_images_temp(images)
     except Exception as e:
-        print(f"[Viz Error] {e}")
+        print(f"[Viz Fetch Error] {e}")
         return None
