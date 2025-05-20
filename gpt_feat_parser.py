@@ -1,14 +1,9 @@
 import os
 from openai import OpenAI
 from config import OPENAI_API_KEY
+from smart_chunker import chunk_text  # ✅ NEW
 
 client = OpenAI(api_key=OPENAI_API_KEY)
-
-def truncate_tokens(text, max_tokens=7500):
-    # ~4 characters per token, so 7500 tokens ≈ 30,000 characters
-    max_chars = max_tokens * 4
-    return text[:max_chars]
-
 
 def parse_feats_with_gpt(raw_text, series_name=None, chapter_number=None, source="Unknown", wiki_stats=None):
     """
@@ -31,13 +26,14 @@ def parse_feats_with_gpt(raw_text, series_name=None, chapter_number=None, source
         for key, value in wiki_stats.items():
             wiki_context += f"- {key.title()}: {value}\n"
 
-    raw_text = truncate_tokens(raw_text, max_tokens=7500)
+    all_chunks = chunk_text(raw_text, max_tokens=7000)
+    outputs = []
 
-    prompt = f"""
+    for idx, chunk in enumerate(all_chunks):
+        prompt = f"""
 You are a power-scaling analyst AI trained to use the Versus Battle Wiki tiering system.
 
 Using the feats and stats below, generate a full character profile in markdown.
-
 If new feats show stronger scaling than existing wiki tiers, override the wiki tier and explain why.
 
 Respond in this format:
@@ -63,18 +59,20 @@ Respond in this format:
 {wiki_context}
 
 --- FEAT DATA BEGIN ---
-{raw_text}
+{chunk}
 --- FEAT DATA END ---
 """
 
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are a power-scaling AI following the Versus Battle Wiki format."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.3,
-        max_tokens=1500
-    )
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a power-scaling AI following the Versus Battle Wiki format."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+            max_tokens=1500
+        )
 
-    return response.choices[0].message.content.strip()
+        outputs.append(response.choices[0].message.content.strip())
+
+    return "\n\n---\n\n".join(outputs)
