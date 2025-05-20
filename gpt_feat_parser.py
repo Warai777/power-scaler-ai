@@ -4,6 +4,7 @@ from config import OPENAI_API_KEY
 from smart_chunker import chunk_text
 from profile_merger import merge_power_profiles
 from cache import load_cache, save_cache
+from multi_form_handler import detect_forms, format_multi_form_profile  # ✅ NEW
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -89,4 +90,6 @@ Respond in this format:
         save_cache(cache_key, result)
         outputs.append(result)
 
-    return merge_power_profiles(outputs)
+    merged_profile = merge_power_profiles(outputs)
+    forms = detect_forms(merged_profile)
+    return format_multi_form_profile(forms, wiki_stats)
