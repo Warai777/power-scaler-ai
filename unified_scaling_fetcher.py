@@ -2,17 +2,19 @@ from gpt_feat_parser import parse_feats_with_gpt
 from chapter_parser.anime_parser import parse_anime_episode
 from chapter_parser.chapter_parser import parse_chapter
 from chapter_parser.chapter_tracker import get_last_parsed, update_last_parsed
-from latest_fetcher import get_latest_chapter, get_latest_episode  # ✅ NEW
+from latest_fetcher import get_latest_chapter, get_latest_episode
 from wiki_parsers.vs_battle_wiki_parser import fetch_vs_battle_profile
 from wiki_parsers.omniversalbattle_parser import fetch_omniversal_profile
 from wiki_parsers.top_strongest_parser import fetch_top_strongest_profile
 from wiki_parsers.character_stat_profiles_parser import fetch_character_stat_profile
 from wiki_parsers.vs_debating_parser import fetch_vs_debating_profile
 from wiki_parsers.superpower_wiki_parser import fetch_superpower_profile
-from name_resolver import resolve_character_name  # ✅ NEW
+from name_resolver import resolve_character_name
+from ocr_parser import extract_text_from_folder  # ✅ NEW
+
 
 def unified_scaling_data(name):
-    name = resolve_character_name(name)  # ✅ Normalize nickname
+    name = resolve_character_name(name)
     print(f"[+] Gathering all sources for {name}...")
 
     # --- Wiki Profiles ---
@@ -36,7 +38,6 @@ def unified_scaling_data(name):
     last_chapter = progress.get("last_chapter", 1)
     last_episode = progress.get("last_episode", 1)
 
-    # ✅ Get latest available chapter and episode dynamically
     latest_chapter = get_latest_chapter(name)
     latest_episode = get_latest_episode(name)
 
@@ -83,6 +84,22 @@ def unified_scaling_data(name):
             feat_sources.append(f"[YouTube Summary] {yt_result}")
     except:
         pass
+
+    # ✅ OCR folders (manga panels, screenshots, etc.)
+    try:
+        ocr_paths = [
+            f"ocr/mangadex/{name}",
+            f"ocr/viz/{name}",
+            f"ocr/anime/{name}",
+            f"ocr/reddit/{name}",
+            f"ocr/youtube/{name}"
+        ]
+        for path in ocr_paths:
+            ocr_result = extract_text_from_folder(path)
+            if ocr_result:
+                feat_sources.append(f"[OCR] {ocr_result}")
+    except Exception as e:
+        print(f"[OCR Error] {e}")
 
     raw_text = "\n\n".join(feat_sources)
     if not raw_text.strip():
