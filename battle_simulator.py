@@ -1,5 +1,5 @@
 import re
-from battle_engine import simulate_fight
+from battle_engine import simulate_battle
 
 def simulate_battle(char1, char2):
     try:
@@ -15,7 +15,7 @@ Respond in this markdown format:
 - **Key Abilities**: 
 - **Battle Summary**: Short summary with tactics or strategies.
 """
-        return simulate_fight(prompt)
+        return simulate_battle(char1, char2)
     except Exception as e:
         print(f"[Battle Error] {e}")
         return {"result": "Battle simulation failed."}
